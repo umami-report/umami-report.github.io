@@ -6,215 +6,68 @@
 <title>UMAMI REPORT | 食品・AI・経済ニュース</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --black: #111111;
-    --charcoal: #333333;
-    --mid: #666666;
-    --light: #999999;
-    --border: #e5e5e5;
-    --bg: #ffffff;
-    --bg2: #f7f7f7;
-    --economy: #1a1a2e;
-    --ai: #2563eb;
-    --food: #dc2626;
+    --black: #111111; --charcoal: #333333; --mid: #666666;
+    --light: #999999; --border: #e5e5e5; --bg: #ffffff; --bg2: #f7f7f7;
+    --domestic: #1a1a2e; --world: #374151; --ai: #2563eb; --food: #dc2626;
   }
+  body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--charcoal); line-height: 1.7; font-size: 15px; }
 
-  body {
-    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-    background: var(--bg);
-    color: var(--charcoal);
-    line-height: 1.7;
-    font-size: 15px;
-  }
-
-  /* ── HEADER ── */
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .header-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    gap: 32px;
-  }
-  .logo {
-    font-size: 1.1rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    color: var(--black);
-    text-decoration: none;
-    white-space: nowrap;
-  }
+  header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .header-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 56px; display: flex; align-items: center; gap: 24px; }
+  .logo { font-size: 1.05rem; font-weight: 800; letter-spacing: 0.12em; color: var(--black); text-decoration: none; white-space: nowrap; }
   .logo span { color: var(--food); }
-  nav { display: flex; gap: 0; }
-  nav a {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--mid);
-    text-decoration: none;
-    padding: 4px 14px;
-    border-radius: 2px;
-    transition: color 0.15s;
-  }
+  nav { display: flex; }
+  nav a { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; color: var(--mid); text-decoration: none; padding: 4px 12px; transition: color 0.15s; }
   nav a:hover { color: var(--black); }
-  nav a.active { color: var(--black); }
-  .header-date {
-    margin-left: auto;
-    font-size: 0.72rem;
-    color: var(--light);
-    white-space: nowrap;
-  }
+  .header-date { margin-left: auto; font-size: 0.68rem; color: var(--light); white-space: nowrap; }
 
-  /* ── HERO BAR ── */
-  .hero {
-    background: var(--black);
-    color: white;
-    padding: 40px 24px;
-    text-align: center;
-  }
-  .hero h1 {
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 900;
-    letter-spacing: 0.15em;
-  }
+  .hero { background: var(--black); color: white; padding: 44px 24px; text-align: center; }
+  .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; letter-spacing: 0.15em; }
   .hero h1 span { color: var(--food); }
-  .hero p {
-    margin-top: 8px;
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.5);
-    letter-spacing: 0.08em;
-  }
+  .hero p { margin-top: 10px; font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.12em; }
 
-  /* ── MAIN LAYOUT ── */
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 48px 24px;
-  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 52px 24px; }
 
-  /* ── SECTION ── */
-  .news-section { margin-bottom: 56px; }
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--black);
-  }
-  .section-label {
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.15em;
-    color: var(--black);
-  }
-  .section-count {
-    font-size: 0.68rem;
-    color: var(--light);
-    letter-spacing: 0.05em;
-  }
-  .section-header .bar {
-    width: 32px;
-    height: 3px;
-    border-radius: 2px;
-    margin-right: -8px;
-  }
+  .news-section { margin-bottom: 60px; }
+  .section-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--black); }
+  .section-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.15em; color: var(--black); }
+  .section-count { font-size: 0.65rem; color: var(--light); }
+  .bar { width: 28px; height: 3px; border-radius: 2px; flex-shrink: 0; }
 
-  /* ── CARD GRID ── */
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-  .card {
-    background: var(--bg);
-    padding: 20px 22px;
-    transition: background 0.15s;
-  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .card { background: var(--bg); padding: 20px 22px; transition: background 0.15s; }
   .card:hover { background: var(--bg2); }
-  .card-tag {
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    margin-bottom: 8px;
-  }
-  .card-title {
-    font-size: 0.92rem;
-    font-weight: 600;
-    line-height: 1.55;
-    margin-bottom: 10px;
-  }
-  .card-title a {
-    color: var(--black);
-    text-decoration: none;
-  }
+  .card-tag { font-size: 0.63rem; font-weight: 800; letter-spacing: 0.13em; margin-bottom: 8px; }
+  .card-title { font-size: 0.9rem; font-weight: 600; line-height: 1.55; margin-bottom: 10px; }
+  .card-title a { color: var(--black); text-decoration: none; }
   .card-title a:hover { color: var(--food); }
-  .card-meta {
-    font-size: 0.72rem;
-    color: var(--light);
-  }
+  .card-meta { font-size: 0.7rem; color: var(--light); }
 
-  /* ── ARCHIVE ── */
-  .archive-section {
-    border-top: 1px solid var(--border);
-    padding-top: 40px;
-    margin-top: 16px;
-  }
-  .archive-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-  }
-  .archive-link {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: var(--charcoal);
-    text-decoration: none;
-    border: 1px solid var(--border);
-    padding: 5px 12px;
-    border-radius: 2px;
-    transition: all 0.15s;
-  }
-  .archive-link:hover {
-    background: var(--black);
-    color: white;
-    border-color: var(--black);
-  }
+  /* 国内・世界を横並びグリッド */
+  .economy-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 60px; }
+  .economy-col .section-header { border-bottom-width: 2px; }
 
-  /* ── FOOTER ── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 28px 24px;
-    text-align: center;
-  }
+  .archive-section { border-top: 1px solid var(--border); padding-top: 40px; margin-top: 8px; }
+  .archive-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .archive-link { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; color: var(--charcoal); text-decoration: none; border: 1px solid var(--border); padding: 5px 12px; border-radius: 2px; transition: all 0.15s; }
+  .archive-link:hover { background: var(--black); color: white; border-color: var(--black); }
+
+  footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; }
   .footer-inner { max-width: 1100px; margin: 0 auto; }
-  footer p {
-    font-size: 0.72rem;
-    color: var(--light);
-    letter-spacing: 0.05em;
-  }
+  footer p { font-size: 0.7rem; color: var(--light); letter-spacing: 0.05em; }
   footer a { color: var(--charcoal); text-decoration: none; }
   footer a:hover { color: var(--food); }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 640px) {
-    .card-grid { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    .economy-wrapper { grid-template-columns: 1fr; gap: 48px; }
     .header-date { display: none; }
+  }
+  @media (max-width: 600px) {
+    .card-grid { grid-template-columns: 1fr; }
     .hero { padding: 28px 16px; }
     .container { padding: 32px 16px; }
+    nav a { padding: 4px 8px; }
   }
 </style>
 </head>
@@ -224,7 +77,7 @@
   <div class="header-inner">
     <a href="/" class="logo">UMAMI <span>REPORT</span></a>
     <nav>
-      <a href="#economy" class="active">ECONOMY</a>
+      <a href="#economy">ECONOMY</a>
       <a href="#ai">AI</a>
       <a href="#food">FOOD</a>
       <a href="#archive">ARCHIVE</a>
@@ -235,125 +88,156 @@
 
 <div class="hero">
   <h1>UMAMI <span>REPORT</span></h1>
-  <p>FOOD &nbsp;·&nbsp; AI &nbsp;·&nbsp; ECONOMY &nbsp;·&nbsp; DAILY DIGEST</p>
+  <p>FOOD &nbsp;&middot;&nbsp; AI &nbsp;&middot;&nbsp; ECONOMY &nbsp;&middot;&nbsp; DAILY DIGEST</p>
 </div>
 
 <div class="container">
 
-  <section class="news-section" id="economy">
-    <div class="section-header">
-      <div class="bar" style="background:#1a1a2e"></div>
-      <h2 class="section-label">ECONOMY &mdash; 主要経済ニュース</h2>
-      <span class="section-count">5 STORIES</span>
-    </div>
-    <div class="card-grid"><article class="card">
-  <div class="card-tag" style="color:#1a1a2e">ECONOMY</div>
-  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiTEFVX3lxTFBGR1Q1MTRoMTZEOFlMOFlIQm5Vd1BVV056amZkV0ZVWEMtUVRadGJCVU1vU2o5ZU02cTdhVDk3SjAxMWxGR3JfZ0xsVmTSAU9BVV95cUxNbnFDT0lIV1EyNXlKTXc2NXQtbkwwdU1IUEVDcThvNDJXQ3BVLW9SYk1BUUQ2U0pYZmtnbDJWeFBzSEhTUkZ5eTZJcVNUUi1j?oc=5" target="_blank" rel="noopener">黒田東彦が6つの時代で考える「戦後の日本経済」、イラン戦争は今後の日本経済にどう影響するのか - ダイヤモンド・オンライン</a></h3>
-  <div class="card-meta">ダイヤモンド・オンライン &nbsp;·&nbsp; 04/21 16:00</div>
-</article><article class="card">
-  <div class="card-tag" style="color:#1a1a2e">ECONOMY</div>
+  <!-- 経済：国内・世界を横並び -->
+  <div class="economy-wrapper" id="economy">
+    <div class="economy-col">
+      <div class="section-header">
+        <div class="bar" style="background:var(--domestic)"></div>
+        <h2 class="section-label">DOMESTIC &mdash; 国内主要経済</h2>
+        <span class="section-count">5 STORIES</span>
+      </div>
+      <div class="card-grid"><article class="card">
+  <div class="card-tag" style="color:#1a1a2e">DOMESTIC</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE9WWldSZDRDeEZfMmJod01SVThUS09ST25rN0NkcGZmaDY0aE9ObGM3MDR2bmdnOUhYSmQ3clgtcjhEWW1NeHVnV3FQUklWX0lLdndFNnlGS045eTBjakdJ?oc=5" target="_blank" rel="noopener">日本経済見通しを修正 原油高踏まえ、物価見通しを大幅に上方修正 野村證券・森田京平 - nomura.co.jp</a></h3>
-  <div class="card-meta">nomura.co.jp &nbsp;·&nbsp; 03/11 16:00</div>
+  <div class="card-meta">nomura.co.jp &nbsp;&middot;&nbsp; 03/11 16:00</div>
 </article><article class="card">
-  <div class="card-tag" style="color:#1a1a2e">ECONOMY</div>
-  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiV0FVX3lxTFAtZmxvTmFoamlKcGJDOHpqVjBsaGs3TG05SW5BOWk3eFFEMFVsYkpqaFZPTjlUVF9zLU9HM2tOLWNQbDJvdXA4UW9BRm4wcDhGQkcyWlY5UQ?oc=5" target="_blank" rel="noopener">【2024年最新版】世界のGDP（国内総生産）ランキング！日本は本当に経済大国なのか - ウイングアーク１ｓｔ</a></h3>
-  <div class="card-meta">ウイングアーク１ｓｔ &nbsp;·&nbsp; 03/13 16:00</div>
+  <div class="card-tag" style="color:#1a1a2e">DOMESTIC</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMib0FVX3lxTE9oNm1WUUdQQkFWaU9hcjg3dWdJQS1paWx3QlZUV085ZFphYk5nSHF2Qzd3Zy1uOWRBUmR3dFlPaFhFTDJMWWVRb0UyYVlEOV91TW56MHlmR2xNZ3RZS1VsTTQtTC13OHJyNDItNk9KZ9IBf0FVX3lxTFBVd1NiOFowUGtXM211Vkg2bHhpMlhYNjRpVTJSUzA4RmlaM2hnRDNWZnU3THdubE5WektSSHdfYmRaelVZZmVLMTl4RXRFN3NoOVAzcUFwNHo3dmhQUUFWTFRfN3RNUC1LdFBaOG96Q0IxQU85WVg0bmtNcnFaeTQ?oc=5" target="_blank" rel="noopener">企業物価指数2026年3月～国内企業物価は原油高、円安の影響で、上昇率が前月から拡大～ - nli-research.co.jp</a></h3>
+  <div class="card-meta">nli-research.co.jp &nbsp;&middot;&nbsp; 04/10 16:00</div>
 </article><article class="card">
-  <div class="card-tag" style="color:#1a1a2e">ECONOMY</div>
+  <div class="card-tag" style="color:#1a1a2e">DOMESTIC</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxPYS1RNkhUOXNuaGlJZVN0TkNjNW9aTXdKdzU5SGFDS1dwVnFBMEpYQS1SSzZLcnNEVVdMVVJQVXBVMjZkYXQ1UklkSExZTHpVaHM2WWJLN0k3Um9NWnZBdGVmSGJzWnpHcmhlM3oyQTdUdFA4TDJUQTFaM18yU1VNSmJRWUFkekZW?oc=5" target="_blank" rel="noopener">物価・賃金・景気の行方を読み解く― 2026年経済展望：「国内回帰」が切り拓く成長シナリオ―（馬渕磨理子） - エキスパート - Yahoo!ニュース</a></h3>
+  <div class="card-meta">Yahoo!ニュース &nbsp;&middot;&nbsp; 01/07 17:00</div>
+</article><article class="card">
+  <div class="card-tag" style="color:#1a1a2e">DOMESTIC</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9VbXZjaVFkZHFWMXZtdDRlVm5WbUtoaUdLZjZsMXdQYnBEaTkwWTU4TVVDa3R6VVdNVEdXbk5WWnBKMWo4Y0dLbFlrQjJHVVkzUHhBeEU2YzkwYVhnNW83NlA2UE9hMm1fdVJDcg?oc=5" target="_blank" rel="noopener">日本のGDP、インドに抜かれ世界5位へ IMF2026年見通し - 日本経済新聞</a></h3>
-  <div class="card-meta">日本経済新聞 &nbsp;·&nbsp; 10/16 16:00</div>
+  <div class="card-meta">日本経済新聞 &nbsp;&middot;&nbsp; 10/16 16:00</div>
 </article><article class="card">
-  <div class="card-tag" style="color:#1a1a2e">ECONOMY</div>
+  <div class="card-tag" style="color:#1a1a2e">DOMESTIC</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiSkFVX3lxTE1fSXpxZmlkeHljMDFWc2dfSEJfSjdSZzZ1NEg0ZW5Mc2pzRW9CRWFMMWVsWEtkalhRU2Y5Z0JGREhCUXBKNW9iRUVR?oc=5" target="_blank" rel="noopener">【2025年最新】世界GDPランキング 日本は５位に後退、一人あたりGDPは38位 - ELEMINIST</a></h3>
-  <div class="card-meta">ELEMINIST &nbsp;·&nbsp; 09/16 16:00</div>
+  <div class="card-meta">ELEMINIST &nbsp;&middot;&nbsp; 09/16 16:00</div>
 </article></div>
-  </section>
+    </div>
+    <div class="economy-col">
+      <div class="section-header">
+        <div class="bar" style="background:var(--world)"></div>
+        <h2 class="section-label">GLOBAL &mdash; 世界経済</h2>
+        <span class="section-count">5 STORIES</span>
+      </div>
+      <div class="card-grid"><article class="card">
+  <div class="card-tag" style="color:#374151">GLOBAL</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE9NaUVuZE0zN2Qta1FOZU5vMlc2UEg1ZnJJem5LdHNwM01fZHFUWmRuem44eVRWRkN1a1VCSU1XSFF5ckcwaVBtYnFXNWYzSG16MDBJUGYzM2lNZ0xGYTBBZVdmeEh2WG1fT3c?oc=5" target="_blank" rel="noopener">世界経済フォーラムのヤング・グローバル・リーダーズ（YGLs）2026に介護用品レンタルのヤマシタ代表の山下和洋が選出 - PR TIMES</a></h3>
+  <div class="card-meta">PR TIMES &nbsp;&middot;&nbsp; 04/16 16:00</div>
+</article><article class="card">
+  <div class="card-tag" style="color:#374151">GLOBAL</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMid0FVX3lxTE9TMVByYWpzUklFRUowbndmUVVkdE9RZ1JTUEU3Zl9Dai1PbTZuZE5oQXpQQ213UUxZVW5JaXlSVnlNSmEwekJ5Z2RIcXFXcWxIaXZPbjRUUVpRWjJwSDRQbDVfMG9YR1dHbE02LVI1QVNaSmpwbVdN?oc=5" target="_blank" rel="noopener">グローバル・バリューチェーン・レポート（2025年版）：変貌する世界経済における GVC 再構築 - ide.go.jp</a></h3>
+  <div class="card-meta">ide.go.jp &nbsp;&middot;&nbsp; 01/09 18:03</div>
+</article><article class="card">
+  <div class="card-tag" style="color:#374151">GLOBAL</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMipgFBVV95cUxNTGRzdkFNNWhzaVNya3ZIMmZvSGNQQm1qOXZDQ0pXQ2FYdGpieFVUZDJpYTBhUXdraTVUNzUwTnJxclFwb3czcGs4RDNTM2xkbnNISjkxcDZYS1AxOElVeVVJQmdySHpBdFJFQm1mYTlLcGs4Ti16YkJVYzBhUnNMUmZvakNWXzRJVFNNZW55OFkzQ3lRZ3QtdVluQkUxZDU2MnVLMUd3?oc=5" target="_blank" rel="noopener">2026年の事業計画を強化する世界経済トレンドとデータ活用法 - Oxford Economics</a></h3>
+  <div class="card-meta">Oxford Economics &nbsp;&middot;&nbsp; 10/24 16:00</div>
+</article><article class="card">
+  <div class="card-tag" style="color:#374151">GLOBAL</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxPSFRfSjM0d0s0N28xRnNzb3FVMXFOM3NhRW9LZTI5MFgwSVNidG5OLTlaODZzZ0V4YmRZSWt5S0Vkdm5PWlA0MHZSbFVMOU9oQVYxTjA0Ymd4VnRBYnFIb2hRU2RMWXlRUXAzSDBudDZmdzAzNW9TQ2l6U0k0T3UzZVZqSUjSAYoBQVVfeXFMUEZIMFRkSEJrUTNoQ2EyYTE0SUtHVkMxdFNQT0RUNVViRG0zRjZQcTFrQ25iVUtyWENZQk9SZHFRNU9mcjdscm9lRUVjQndFazk0ZWlZOUVJYWFDT0d4X2FYYzB0bGZmb29UbmxmeE1yaXBHdzBGcGNrRURmeTQ0QThzMVctUTRKVThB?oc=5" target="_blank" rel="noopener">【国際】世界経済フォーラム「グローバル・ライトハウス・ネットワーク」、23工場加盟。中国16拠点 | Sustainable Japan | 世界のサステナビリティ・ESG投資・SDGs - Sustainable Japan</a></h3>
+  <div class="card-meta">Sustainable Japan &nbsp;&middot;&nbsp; 01/20 17:00</div>
+</article><article class="card">
+  <div class="card-tag" style="color:#374151">GLOBAL</div>
+  <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMi1wRBVV95cUxNaU5QN0JqMlY1dlJyQjlEQmlyQ0xIcEZ6enE0SENrbnBTWjkyb0gwb0lmaWp6MUU3Z0dSd3pvTm90eFdGbnNnRnBJM1VQaFNsbm5KOFVYNERscUJwLTB1MmxHODc1MGVLYmpzU2d2VldRMElCNFFrZVhVQVUxZk5odk5mRGlvNFFzNFhEOHBhM1BaQzFHZnpISFBJT3RPeTdEdnZ4LTZsV016bV9LSmowRnUydG83NDY4RE00c0JieWx6OFI2dldPOWZsdTQzNXM2eTluNHd2VjlJOGNHVGgxME5ubXNlSGJSUGc5SkU5SFZwVnpaVDdhNjc4Tl9iNV9IS1dmVzFSdG9UWmFpaDZZLV90MXFvNW8tdkpZUlNSMTBzajgxajNDQW9yN2pNZEg0b1diY2ZBUnlGZDcxTmdyTEpLdjN6dGJSNG5NVUp0X3Z3RzRtM1FuUTRfOHZBdlI1VTRPcTFKQjJrRk9vMlR4OHRtUkVCS1dVWGxlbkhaMWxubjNja2pBbmJtNjNPSnM2bGJkTlRmb0l4b2FzeGFQRGRqYTFXdkV2U2FUMVc0ekxTTm5uTVlHVkZzMDk2eUFCWE1UYlEyLTJiYzVyc1dTbDEyRlRfRVpiMTgyT0ZsLUhMQURSUy1qb0xXckVObU9FSmxaYlExRTQwM0gyRWxwMGF6YlJNRGl0WHRfajNSQTBxcWpxb1pMcWFMVjhsekItRDd3YzMwdmdUWmJwUmpEUE1SdDBRTHJhNWdzWlZsRExRVUtublhveWI3dkdjdkh0eVAwV3F5TQ?oc=5" target="_blank" rel="noopener">日本には光り輝く企業がある！世界経済を支える「グローバル・ニッチ・トップ企業」とは - スマートニュース</a></h3>
+  <div class="card-meta">スマートニュース &nbsp;&middot;&nbsp; 02/27 17:00</div>
+</article></div>
+    </div>
+  </div>
 
   <section class="news-section" id="ai">
     <div class="section-header">
-      <div class="bar" style="background:#2563eb"></div>
+      <div class="bar" style="background:var(--ai)"></div>
       <h2 class="section-label">AI &amp; TECHNOLOGY &mdash; 最新動向</h2>
       <span class="section-count">5 STORIES</span>
     </div>
     <div class="card-grid"><article class="card">
   <div class="card-tag" style="color:#2563eb">AI</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMicEFVX3lxTE13a3lYSjROREZoeG0yakgzU2pYRlRSMTZkRHloN1ZCWGpuSVowSVQxQWdzVFE1djd4MFRzeWc3c3RZUUFyblhyY2s4RjFZMUN0QnJ4dm82RjdtcDhaVURuVzhqREZyX1h3X1dwaWFMZUg?oc=5" target="_blank" rel="noopener">AIが起こすESG革命 - 日経BP</a></h3>
-  <div class="card-meta">日経BP &nbsp;·&nbsp; 05/08 02:09</div>
+  <div class="card-meta">日経BP &nbsp;&middot;&nbsp; 05/08 02:09</div>
 </article><article class="card">
   <div class="card-tag" style="color:#2563eb">AI</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiVEFVX3lxTE9MMy1saDM1SGtJdlVQZGR2NXBjVU80ZzJ4dEk1QWtOOXRaLVpIeG13cEwtc3hiSlZnQllIM1BwS0tvY3V2TXZBcENJZV81Tk5RLXNLTg?oc=5" target="_blank" rel="noopener">角川アスキー総合研究所、人工知能の最新動向を解説する『AI白書2023』を発売 - ProductZine</a></h3>
-  <div class="card-meta">ProductZine &nbsp;·&nbsp; 05/05 23:08</div>
+  <div class="card-meta">ProductZine &nbsp;&middot;&nbsp; 05/05 23:08</div>
 </article><article class="card">
   <div class="card-tag" style="color:#2563eb">AI</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMif0FVX3lxTFBpaXpVckF0VW9IVWlHOS04VXpCdGNtSkZNMnpRYllmdFZkNm5uZjV3NzNlZGZZNG1VMmhsRW9pdkpQTGl6UDVOTjRNRjJBdzNIWVpXN0Y2R3Q4ai1tLUlZLXlSamtzOXdhNWJvR0RYYngtYU5uSGRwMGNjZXprSjQ?oc=5" target="_blank" rel="noopener">「生活に戦争と同じダメージが出る可能性が」公開見送りになった最新AI「ミュトス」本当の“脅威”を専門家が解説（女性自身） - Yahoo!ニュース</a></h3>
-  <div class="card-meta">Yahoo!ニュース &nbsp;·&nbsp; 05/04 18:45</div>
+  <div class="card-meta">Yahoo!ニュース &nbsp;&middot;&nbsp; 05/04 18:45</div>
 </article><article class="card">
   <div class="card-tag" style="color:#2563eb">AI</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMid0FVX3lxTE9KUUtySVNybnFqVWFwSXFfa3AxVDhZa2I4TFBxclpOVDFoZ1lNWlgtUzRqQml5ODZ2eVNUTjZ0UHNhaG91ZmpSTDEtZWcyeUZEampmd3phLUVIX19PUDVRN0dBZXQ3em9NU1lmZTNQX09sdzBVZVNv?oc=5" target="_blank" rel="noopener">アンソロピック最新AI、米政府も恐れる「威力」－何がそこまで凄いか - Bloomberg.com</a></h3>
-  <div class="card-meta">Bloomberg.com &nbsp;·&nbsp; 04/13 16:00</div>
+  <div class="card-meta">Bloomberg.com &nbsp;&middot;&nbsp; 04/13 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#2563eb">AI</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMieEFVX3lxTE5UVXRFN1pJclJNNW9Kb3ZnNVZkbVQxNXZ5S2xlbk40OTRzdnZTOXpMZTg5enc4cGc4OThfM3NQNWkybjhsQzNoRjdLb3dNOGJ0Z25kUUM2bmI2bXlpMHVMY1RXeF83b2RQVV9Qc3BKeUYzNm9JbzJ2Sg?oc=5" target="_blank" rel="noopener">AI最新モデル「GPT-5.5」、何ができる？ 最も危険なAI「クロード・ミュトス」発表の衝撃から2週間、人工知能を巡る攻防 - ハフポスト</a></h3>
-  <div class="card-meta">ハフポスト &nbsp;·&nbsp; 04/26 16:00</div>
+  <div class="card-meta">ハフポスト &nbsp;&middot;&nbsp; 04/26 16:00</div>
 </article></div>
   </section>
 
   <section class="news-section" id="food">
     <div class="section-header">
-      <div class="bar" style="background:#dc2626"></div>
+      <div class="bar" style="background:var(--food)"></div>
       <h2 class="section-label">FOOD INDUSTRY &mdash; 食品業界ニュース</h2>
       <span class="section-count">10 STORIES</span>
     </div>
     <div class="card-grid"><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE9YR3BtUG5iY01YckdKTVR6YWtEb0x0Qy1iQlo1Q3RNY0dsVlFtMTExd0lGbnkzUG9RVEh5Rjkya0dWQjBEcFlkRTFQQldmVWlLNF9JR2ktSzVGcEdsYkNQYk1DYzR0N1Nu?oc=5" target="_blank" rel="noopener">月刊「食品新製品トレンド」2026年4月号 日本ならではの素材が進化 新たなアプローチで楽しむ和の食材 - 日本食糧新聞・電子版</a></h3>
-  <div class="card-meta">日本食糧新聞・電子版 &nbsp;·&nbsp; 04/20 16:00</div>
+  <div class="card-meta">日本食糧新聞・電子版 &nbsp;&middot;&nbsp; 04/20 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE5ReVQwY3VhOEU4a1AwSDFFbzNiS25LTGROVXd1Tk1idVZ4NFJ0V1RTNldrbXhIUkVBSktlY1VuUFFiQUJtanREUnlrY2R0YXFDSUxOSjRzRGhSM1d5SWZGczU1Nk5ybldnWUE?oc=5" target="_blank" rel="noopener">【トレンド発信】2026年春夏『新商品グランプリ』結果発表！ - PR TIMES</a></h3>
-  <div class="card-meta">PR TIMES &nbsp;·&nbsp; 03/09 16:00</div>
+  <div class="card-meta">PR TIMES &nbsp;&middot;&nbsp; 03/09 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE5OV3N1Unl1V18wZkx5M3hnT2REMjE0Ni1mRWxsUTA1VWxRT3dPWmp1T0NkUFU4ak8xVVNRSzR5ZHp6YlJJemhYSjQ2S0d6U1lFaDVzYWsxUUplNFpKa0laNUJoN00ydHZF?oc=5" target="_blank" rel="noopener">月刊「食品新製品トレンド」2026年5月号 新ブランド続々誕生！ “安心の既存ブランド”から“新しい挑戦”へ - 日本食糧新聞・電子版</a></h3>
-  <div class="card-meta">日本食糧新聞・電子版 &nbsp;·&nbsp; 04/20 09:31</div>
+  <div class="card-meta">日本食糧新聞・電子版 &nbsp;&middot;&nbsp; 04/20 09:31</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE14QmpKUk5vckREYlEwNkhQSF8tUDNsVmRpTkM0MDNqLXFVZ3h0UHV3NkZvRlRrdjZlaWdxbTFCVXp5UmwyaFJGRFN5dGFYTlhSd19Tbm96Y2xtSEFTY0k4OXNpOVdxeGxO?oc=5" target="_blank" rel="noopener">月刊「食品新製品トレンド」2026年3月号 26年春の新提案が勢揃い！家庭内調理を［ラク］に［おいしく］ - 日本食糧新聞・電子版</a></h3>
-  <div class="card-meta">日本食糧新聞・電子版 &nbsp;·&nbsp; 02/20 09:31</div>
+  <div class="card-meta">日本食糧新聞・電子版 &nbsp;&middot;&nbsp; 02/20 09:31</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiakFVX3lxTFBZU05JNjZrWWlFVnp5Uk00bUxLT0ptekhQSEJ0SURpUWFQMUowdTBScjBPM0xhSEN1TG9CUWMwbXJ2ZWYyd1VocjZ0V2xjbzV6R2NpX0xLMXJud0ZvVVkzeENxYnJxLWxybFE?oc=5" target="_blank" rel="noopener">【トレンド発信】2025年秋冬『新商品グランプリ』結果発表！ - PR TIMES</a></h3>
-  <div class="card-meta">PR TIMES &nbsp;·&nbsp; 08/27 16:00</div>
+  <div class="card-meta">PR TIMES &nbsp;&middot;&nbsp; 08/27 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiYkFVX3lxTE5qbWlfMjBCYVlsSmF2a25EcGNBQy1IVGRHT3pKekhWUFc3ME5xOUlxWWNZME5jTE9LTHF1cHJ6SWdWS0NsTHUzSzJTekNmbEhtT2hLXzM1QTZNWEVxV3p1MXZB?oc=5" target="_blank" rel="noopener">おいしい博覧会 下半期の食トレンド予測 秋冬戦へ注力商品を展示 - 食品新聞 WEB版</a></h3>
-  <div class="card-meta">食品新聞 WEB版 &nbsp;·&nbsp; 10/14 16:00</div>
+  <div class="card-meta">食品新聞 WEB版 &nbsp;&middot;&nbsp; 10/14 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE4xVVB1M3hWQWRiZWtKWkV4X0xtcUt1SzRuY3FTQ1psUHdrUEJoQWs4OGFneDVNNlZlQk82dkE1SkVWdE5PY0FKZHE3Z2o2dmtqX1NsQ3R3QkpUZUIxYVI5Q1c4ajZfN0dWQkw4YTFHUFR6aUZRUVE4Wm9XVkFvQm8?oc=5" target="_blank" rel="noopener">食品メーカー売上高は値上げで24兆円に 利益は物価高に値上げが追い付かず二極化（東京商工リサーチ） - Yahoo!ニュース</a></h3>
-  <div class="card-meta">Yahoo!ニュース &nbsp;·&nbsp; 04/17 16:00</div>
+  <div class="card-meta">Yahoo!ニュース &nbsp;&middot;&nbsp; 04/17 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMipwFBVV95cUxNZXd2dXpiMU9ydU5vNDZKeENiNGNfS1BFVHphc3pqU2p5UFBZTmc4aXFOWGw2YzlnYlI1aGVvdUJINHRRTklRcDJfV1JVTm55aDJoTmlNV3IyUGFNblVWOHNtZ3U1SE1fMHZtMDhOVS02dVdENlRJbVNoN0d0UERxTTl2RUJhYjc5WXUzeC1YaXVraUhQemZaY1Vja25GSTM4YzR2RUttVQ?oc=5" target="_blank" rel="noopener">食品酵素市場規模、シェア、動向 |成長レポート [2034] - Fortune Business Insights</a></h3>
-  <div class="card-meta">Fortune Business Insights &nbsp;·&nbsp; 04/20 16:00</div>
+  <div class="card-meta">Fortune Business Insights &nbsp;&middot;&nbsp; 04/20 16:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMiigFBVV95cUxOWF96SFdXUE9aQi16RFlDV0Z1MUZac1lzcmpNYlJsOS1SMm0zMGYxZjItWjRQYTQ1UmVqMVlKbmdBYXpsZEczUXR6Mk1LWm5ySnFENjdKbnByeHc0NkhqeldLY01oMk9RdEROOFUzQ1dMaDJldmRQbWlnVUJQSkZkRU01NFk3SldwMmc?oc=5" target="_blank" rel="noopener">AIが予測する冷凍食品メーカー ｜2030年市場規模推移と主要企業ランキング - xenoBrain</a></h3>
-  <div class="card-meta">xenoBrain &nbsp;·&nbsp; 01/18 17:00</div>
+  <div class="card-meta">xenoBrain &nbsp;&middot;&nbsp; 01/18 17:00</div>
 </article><article class="card">
   <div class="card-tag" style="color:#dc2626">FOOD</div>
   <h3 class="card-title"><a href="https://news.google.com/rss/articles/CBMizAFBVV95cUxPWDNyRnZnWm1xUXQxLTdfR2xnYU9hR25BYjI2aUVWVUNXTThVNWpLVmdFYzZVdXJMYzRhSDlIWGE4eS1xN3pRRDBqNXZHcU9TVHA2NW5Bc2JuMkFGZ0wyY2hObzlpUXp2c1Q1MFNUenVEUVhqTlIta04wQU1FSmNmaFdlZ0pPLVNGVGNhc1pXSDlWZDJLUW4yLV8wTjlWTldCdEQtb0NsaU5MUEsyTklpZHk1OFlhcFdyRlhyaVZHN1F2YmRDYzN6a3FuTEc?oc=5" target="_blank" rel="noopener">食品M&amp;Aの動向と成功のポイント【2026年最新】| 業界再編や事例、価格相場を専門家が解説 - masouken.com</a></h3>
-  <div class="card-meta">masouken.com &nbsp;·&nbsp; 01/08 17:00</div>
+  <div class="card-meta">masouken.com &nbsp;&middot;&nbsp; 01/08 17:00</div>
 </article></div>
   </section>
 
-  <div id="archive"><section class="archive-section"><h2 class="section-label">ARCHIVE</h2><div class="archive-links"><a href="2026-05-09.html" class="archive-link">2026.05.09 (土)</a></div></section></div>
+  <section class="archive-section" id="archive"><h2 class="section-label">ARCHIVE</h2><div class="archive-links"><a href="2026-05-09.html" class="archive-link">2026.05.09 (土)</a></div></section>
 
 </div>
 
 <footer>
   <div class="footer-inner">
-    <p>Auto-generated by <a href="https://claude.ai">Claude</a> &nbsp;·&nbsp; 最終更新: 2026/05/09 11:39 JST</p>
+    <p>Auto-generated by <a href="https://claude.ai">Claude</a> &nbsp;&middot;&nbsp; 最終更新: 2026/05/09 11:45 JST</p>
   </div>
 </footer>
 
