@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 
 JST = timezone(timedelta(hours=9))
-now = datetime.now(JST)
+now = datetime.now(timezone.utc).astimezone(JST)
 cutoff = now - timedelta(days=30)
 days_ja = "月火水木金土日"
 
