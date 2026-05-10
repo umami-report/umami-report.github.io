@@ -11,10 +11,20 @@ food_major=data["food_major"]; conf=data["confectionery"]; choco=data["chocolate
 patents=data.get("patents",[])
 print("Script chars:",len(script))
 mp3=f"/tmp/{today}.mp3"
+mp3_raw=f"/tmp/{today}_raw.mp3"
 print("Generating audio...")
 async def go():
-    await edge_tts.Communicate(script,"ja-JP-NanamiNeural").save(mp3)
+    await edge_tts.Communicate(script,"ja-JP-NanamiNeural").save(mp3_raw)
 asyncio.run(go())
+print("Raw audio:",os.path.getsize(mp3_raw)//1024,"KB")
+# Re-encode with ffmpeg for browser compatibility (edge-tts generates non-standard MPEG headers)
+import subprocess,shutil
+ret=subprocess.run(["ffmpeg","-y","-i",mp3_raw,"-acodec","libmp3lame","-ar","44100","-b:a","128k","-q:a","2",mp3],capture_output=True)
+if ret.returncode==0:
+    print("ffmpeg re-encoded OK")
+else:
+    print("ffmpeg failed, using raw:",ret.stderr.decode()[:200])
+    shutil.copy(mp3_raw,mp3)
 print("MP3:",os.path.getsize(mp3)//1024,"KB")
 def ghget(p):
     r=urllib.request.Request(f"https://api.github.com/repos/{REPO}/{p}",headers={"Authorization":f"token {TOKEN}","User-Agent":"py"})
