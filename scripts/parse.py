@@ -1,6 +1,11 @@
-import xml.etree.ElementTree as ET, json, re, urllib.request
+import xml.etree.ElementTree as ET, json, re, urllib.request, ssl
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
+
+# Bypass SSL verification (CCR environment uses SSL inspection with self-signed certs)
+ssl_ctx = ssl.create_default_context()
+ssl_ctx.check_hostname = False
+ssl_ctx.verify_mode = ssl.CERT_NONE
 
 JST = timezone(timedelta(hours=9))
 now = datetime.now(timezone.utc).astimezone(JST)
@@ -10,7 +15,7 @@ days_ja = "月火水木金土日"
 def fetch_excerpt(url, chars=500):
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as r:
+        with urllib.request.urlopen(req, timeout=10, context=ssl_ctx) as r:
             raw = r.read(80000).decode("utf-8", errors="ignore")
         raw = re.sub(r"<script[^>]*>.*?</script>", " ", raw, flags=re.DOTALL|re.IGNORECASE)
         raw = re.sub(r"<style[^>]*>.*?</style>", " ", raw, flags=re.DOTALL|re.IGNORECASE)
