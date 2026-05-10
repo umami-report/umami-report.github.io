@@ -31,7 +31,8 @@ for f in news_domestic news_world news_ai news_food_major news_confectionery new
   echo "  $f: $count"
 done
 
-pip install edge-tts -q
+pip install edge-tts playwright -q
 apt-get install -y ffmpeg -qq 2>/dev/null || true
+python3 -m playwright install chromium --with-deps -q 2>/dev/null || true
 python3 scripts/parse.py
 echo "=== DONE ==="
