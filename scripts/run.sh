@@ -21,5 +21,6 @@ curl -sL 'https://patents.google.com/rss?q=%E3%83%81%E3%83%A7%E3%82%B3%E3%83%AC%
   || printf '<?xml version="1.0"?><rss version="2.0"><channel></channel></rss>' > /tmp/patents.xml
 
 pip install edge-tts -q
+apt-get install -y ffmpeg -qq 2>/dev/null || true
 python3 scripts/parse.py
 echo "=== DONE ==="
