@@ -59,7 +59,7 @@ html=("<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'><meta name='vi
     f"<span class='header-date'>{date_str}</span></div></header>"
     "<div class='hero'><h1>UMAMI <span>REPORT</span></h1><p>FOOD &middot; AI &middot; ECONOMY &middot; DAILY DIGEST</p></div>"
     "<div class='podcast-bar'><div class='podcast-inner'><span class='podcast-label'>PODCAST</span>"
-    f"<div class='podcast-player'><audio controls preload='none'><source src='audio/{today}.mp3' type='audio/mpeg'>再生非対応</audio></div>"
+    f"<div class='podcast-player'><audio controls preload='metadata' style='height:44px'><source src='audio/{today}.mp3' type='audio/mpeg'>再生非対応</audio></div>"
     f"<span class='podcast-note'>Claude要約 x Nanami - {date_str}</span></div></div>"
     "<div class='container'>"
     "<div class='economy-wrapper' id='economy'>"
