@@ -52,6 +52,65 @@ def parse_rss(fp, mx=5):
     except Exception as e: print("err",fp,e)
     return items
 
+def search_jplatpat(keyword, mx=5):
+    """Search J-PlatPat for recent confectionery patents using Playwright."""
+    patents = []
+    try:
+        from playwright.sync_api import sync_playwright
+        import threading
+
+        captured = []
+        def run():
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+                ctx = browser.new_context(user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36")
+                page = ctx.new_page()
+
+                def on_response(resp):
+                    if "wst0401" in resp.url and resp.status == 200:
+                        try:
+                            data = resp.json()
+                            if data.get("RSLT_INFO", {}).get("RSLT_CD") == 0:
+                                captured.extend(data.get("SEARCH_RSLT_LIST") or [])
+                        except: pass
+
+                page.on("response", on_response)
+                page.goto("https://www.j-platpat.inpit.go.jp/p0100", wait_until="networkidle", timeout=30000)
+                page.wait_for_timeout(2000)
+
+                # Type in the simple search box and submit
+                try:
+                    page.fill("input[type='text']", keyword)
+                    page.wait_for_timeout(500)
+                    page.keyboard.press("Enter")
+                    page.wait_for_timeout(5000)
+                except: pass
+
+                browser.close()
+
+        t = threading.Thread(target=run)
+        t.start(); t.join(timeout=45)
+
+        print(f"J-PlatPat results for '{keyword}': {len(captured)}")
+        cutoff_str = cutoff.strftime("%Y%m%d")
+        for item in captured[:mx]:
+            pub = item.get("PD","") or item.get("publicationDate","") or item.get("AD","") or ""
+            pub_display = f"{pub[4:6]}/{pub[6:]}" if len(pub)==8 else pub
+            if pub and pub < cutoff_str: continue
+            title = item.get("TITL","") or item.get("inventionTitle","") or item.get("TI","") or str(item)[:60]
+            app_no = item.get("APNO","") or item.get("applicationNumber","") or ""
+            pub_no = item.get("PUBN","") or item.get("publicationNumber","") or ""
+            if pub_no:
+                link = f"https://www.j-platpat.inpit.go.jp/c1800/PU/{pub_no.replace(' ','-')}/ja"
+            elif app_no:
+                link = f"https://www.j-platpat.inpit.go.jp/c1800/PU/{app_no}/ja"
+            else:
+                link = "https://www.j-platpat.inpit.go.jp/p0100"
+            patents.append({"title":title,"link":link,"date":pub_display,"source":"J-PlatPat","favicon":"","excerpt":""})
+    except Exception as e:
+        print(f"J-PlatPat search error: {e}")
+    return patents
+
 def parse_patents(fp, mx=3):
     patents = []
     try:
@@ -83,7 +142,11 @@ ai  = parse_rss("/tmp/news_ai.xml")
 food_major = parse_rss("/tmp/news_food_major.xml")
 conf  = parse_rss("/tmp/news_confectionery.xml")
 choco = parse_rss("/tmp/news_chocolate.xml")
-patents = parse_patents("/tmp/patents.xml")
+# Search J-PlatPat for confectionery patents (菓子 broadly: チョコ/焼き菓子/和菓子 etc.)
+patents = search_jplatpat("菓子 チョコレート", mx=5)
+if not patents:
+    print("J-PlatPat returned no results, trying parse_patents fallback...")
+    patents = parse_patents("/tmp/patents.xml")
 
 # De-duplicate food sub-categories
 used = set(a["title"] for a in food_major)
