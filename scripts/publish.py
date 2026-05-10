@@ -1,6 +1,7 @@
-import json, base64, urllib.request, os, asyncio
+import json, base64, urllib.request, os, asyncio, ssl
 import html as hl
 import edge_tts
+ssl._create_default_https_context = ssl._create_unverified_context
 TOKEN=os.environ.get("GITHUB_TOKEN","")
 REPO="umami-report/umami-report.github.io"
 with open("/tmp/articles.json",encoding="utf-8") as f: data=json.load(f)
@@ -12,19 +13,40 @@ patents=data.get("patents",[])
 print("Script chars:",len(script))
 mp3=f"/tmp/{today}.mp3"
 mp3_raw=f"/tmp/{today}_raw.mp3"
-print("Generating audio...")
-async def go():
-    await edge_tts.Communicate(script,"ja-JP-NanamiNeural").save(mp3_raw)
-asyncio.run(go())
-print("Raw audio:",os.path.getsize(mp3_raw)//1024,"KB")
-# Re-encode with ffmpeg for browser compatibility (edge-tts generates non-standard MPEG headers)
-import subprocess,shutil
-ret=subprocess.run(["ffmpeg","-y","-i",mp3_raw,"-acodec","libmp3lame","-ar","44100","-b:a","128k","-q:a","2",mp3],capture_output=True)
-if ret.returncode==0:
-    print("ffmpeg re-encoded OK")
+import subprocess,shutil,re,tempfile
+if os.path.exists(mp3):
+    print("MP3 already exists, skipping TTS generation")
 else:
-    print("ffmpeg failed, using raw:",ret.stderr.decode()[:200])
-    shutil.copy(mp3_raw,mp3)
+    print("Generating audio (edge-tts)...")
+    tts_ok=False
+    try:
+        async def go():
+            await edge_tts.Communicate(script,"ja-JP-NanamiNeural").save(mp3_raw)
+        asyncio.run(go())
+        print("Raw audio:",os.path.getsize(mp3_raw)//1024,"KB")
+        ret=subprocess.run(["ffmpeg","-y","-i",mp3_raw,"-acodec","libmp3lame","-ar","44100","-b:a","128k","-q:a","2",mp3],capture_output=True)
+        if ret.returncode==0: print("ffmpeg re-encoded OK")
+        else:
+            print("ffmpeg failed, using raw:",ret.stderr.decode()[:200])
+            shutil.copy(mp3_raw,mp3)
+        tts_ok=True
+    except Exception as e:
+        print(f"edge-tts failed: {e}, falling back to open_jtalk")
+    if not tts_ok:
+        clean=re.sub(r'\n---\n','\n',script).strip()
+        parts=[p.strip() for p in clean.split('\n\n') if p.strip()]
+        wav_parts=[]
+        for i,para in enumerate(parts):
+            out_wav=f"/tmp/jtalk_part_{i:03d}.wav"
+            with tempfile.NamedTemporaryFile(mode='w',suffix='.txt',encoding='utf-8',delete=False) as tf:
+                tf.write(para); tf_name=tf.name
+            r=subprocess.run(["open_jtalk","-m","/usr/share/hts-voice/nitech-jp-atr503-m001/nitech_jp_atr503_m001.htsvoice","-x","/var/lib/mecab/dic/open-jtalk/naist-jdic","-r","1.0","-ow",out_wav,tf_name],capture_output=True)
+            os.unlink(tf_name)
+            if r.returncode==0 and os.path.exists(out_wav): wav_parts.append(out_wav)
+        with open("/tmp/jtalk_list.txt","w") as f:
+            f.writelines([f"file '{p}'\n" for p in wav_parts])
+        subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i","/tmp/jtalk_list.txt","-acodec","libmp3lame","-ar","44100","-b:a","128k",mp3],capture_output=True)
+        print("open_jtalk MP3 generated")
 print("MP3:",os.path.getsize(mp3)//1024,"KB")
 def ghget(p):
     r=urllib.request.Request(f"https://api.github.com/repos/{REPO}/{p}",headers={"Authorization":f"token {TOKEN}","User-Agent":"py"})
