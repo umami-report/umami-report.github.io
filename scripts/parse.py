@@ -140,6 +140,27 @@ def parse_patents(fp, mx=3):
     except Exception as e: print("patent err",e)
     return patents
 
+# Debug: raw file sizes and item counts before date filter
+def raw_count(fp):
+    try:
+        import os
+        sz = os.path.getsize(fp)
+        root = ET.parse(fp).getroot(); ch = root.find("channel")
+        cnt = len(ch.findall("item")) if ch else 0
+        return {"size": sz, "items": cnt}
+    except Exception as e:
+        return {"size": 0, "items": 0, "err": str(e)}
+
+debug_feeds = {k: raw_count(v) for k,v in {
+    "domestic": "/tmp/news_domestic.xml",
+    "world": "/tmp/news_world.xml",
+    "ai": "/tmp/news_ai.xml",
+    "food_major": "/tmp/news_food_major.xml",
+    "conf": "/tmp/news_confectionery.xml",
+    "choco": "/tmp/news_chocolate.xml",
+}.items()}
+print("DEBUG feed raw counts:", debug_feeds)
+
 # Parse all feeds
 dom = parse_rss("/tmp/news_domestic.xml")
 wld = parse_rss("/tmp/news_world.xml")
