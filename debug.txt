@@ -1,0 +1,19 @@
+=== RSS Fetch Debug Wed May 13 22:16:03 UTC 2026 ===
+news_domestic: size=21
+  first300: Host not in allowlist
+news_world: size=21
+  first300: Host not in allowlist
+news_ai: size=21
+  first300: Host not in allowlist
+news_food_major: size=21
+  first300: Host not in allowlist
+news_confectionery: size=21
+  first300: Host not in allowlist
+news_chocolate: size=21
+  first300: Host not in allowlist
+  news_domestic: parse-err
+  news_world: parse-err
+  news_ai: parse-err
+  news_food_major: parse-err
+  news_confectionery: parse-err
+  news_chocolate: parse-err
