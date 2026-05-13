@@ -1,53 +1,12 @@
-import json, base64, urllib.request, os, asyncio, ssl
+import json, base64, urllib.request, os
 import html as hl
-import edge_tts
-ssl._create_default_https_context = ssl._create_unverified_context
 TOKEN=os.environ.get("GITHUB_TOKEN","")
 REPO="umami-report/umami-report.github.io"
 with open("/tmp/articles.json",encoding="utf-8") as f: data=json.load(f)
-with open("/tmp/script.txt",encoding="utf-8") as f: script=f.read()
 today=data["date"]; date_str=data["date_str"]; time_str=data["time_str"]
 dom=data["domestic"]; wld=data["world"]; ai=data["ai"]
 food_major=data["food_major"]; conf=data["confectionery"]; choco=data["chocolate"]
 patents=data.get("patents",[])
-print("Script chars:",len(script))
-mp3=f"/tmp/{today}.mp3"
-mp3_raw=f"/tmp/{today}_raw.mp3"
-import subprocess,shutil,re,tempfile
-if os.path.exists(mp3):
-    print("MP3 already exists, skipping TTS generation")
-else:
-    print("Generating audio (edge-tts)...")
-    tts_ok=False
-    try:
-        async def go():
-            await edge_tts.Communicate(script,"ja-JP-NanamiNeural").save(mp3_raw)
-        asyncio.run(go())
-        print("Raw audio:",os.path.getsize(mp3_raw)//1024,"KB")
-        ret=subprocess.run(["ffmpeg","-y","-i",mp3_raw,"-acodec","libmp3lame","-ar","44100","-b:a","128k","-q:a","2",mp3],capture_output=True)
-        if ret.returncode==0: print("ffmpeg re-encoded OK")
-        else:
-            print("ffmpeg failed, using raw:",ret.stderr.decode()[:200])
-            shutil.copy(mp3_raw,mp3)
-        tts_ok=True
-    except Exception as e:
-        print(f"edge-tts failed: {e}, falling back to open_jtalk")
-    if not tts_ok:
-        clean=re.sub(r'\n---\n','\n',script).strip()
-        parts=[p.strip() for p in clean.split('\n\n') if p.strip()]
-        wav_parts=[]
-        for i,para in enumerate(parts):
-            out_wav=f"/tmp/jtalk_part_{i:03d}.wav"
-            with tempfile.NamedTemporaryFile(mode='w',suffix='.txt',encoding='utf-8',delete=False) as tf:
-                tf.write(para); tf_name=tf.name
-            r=subprocess.run(["open_jtalk","-m","/usr/share/hts-voice/nitech-jp-atr503-m001/nitech_jp_atr503_m001.htsvoice","-x","/var/lib/mecab/dic/open-jtalk/naist-jdic","-r","1.0","-ow",out_wav,tf_name],capture_output=True)
-            os.unlink(tf_name)
-            if r.returncode==0 and os.path.exists(out_wav): wav_parts.append(out_wav)
-        with open("/tmp/jtalk_list.txt","w") as f:
-            f.writelines([f"file '{p}'\n" for p in wav_parts])
-        subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i","/tmp/jtalk_list.txt","-acodec","libmp3lame","-ar","44100","-b:a","128k",mp3],capture_output=True)
-        print("open_jtalk MP3 generated")
-print("MP3:",os.path.getsize(mp3)//1024,"KB")
 def ghget(p):
     r=urllib.request.Request(f"https://api.github.com/repos/{REPO}/{p}",headers={"Authorization":f"token {TOKEN}","User-Agent":"py"})
     with urllib.request.urlopen(r) as x: return json.loads(x.read())
@@ -78,9 +37,9 @@ def mk_patent_list(items):
     rows=[]
     for p in items:
         date_str2=f' ({p["date"]})' if p.get("date") else ""
-        rows.append(f'<div class="patent-item"><a href="{hl.escape(p["link"])}" target="_blank" rel="noopener" class="patent-link">{hl.escape(p["title"])}</a><div class="patent-meta">Google Patents{date_str2}</div></div>')
+        rows.append(f'<div class="patent-item"><a href="{hl.escape(p["link"])}" target="_blank" rel="noopener" class="patent-link">{hl.escape(p["title"])}</a><div class="patent-meta">J-PlatPat{date_str2}</div></div>')
     return f'<div class="patent-list">{"".join(rows)}</div>'
-css="*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--black:#111;--charcoal:#333;--mid:#666;--light:#999;--border:#e5e5e5;--bg:#fff;--bg2:#f9f9f9}body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);color:var(--charcoal);line-height:1.7;font-size:15px}header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border)}.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;gap:24px}.logo{font-size:1.05rem;font-weight:800;letter-spacing:.12em;color:var(--black);text-decoration:none}.logo span{color:#dc2626}nav a{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--mid);text-decoration:none;padding:4px 12px}nav a:hover{color:var(--black)}.header-date{margin-left:auto;font-size:.68rem;color:var(--light)}.hero{background:var(--black);color:#fff;padding:44px 24px;text-align:center}.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:.15em}.hero h1 span{color:#dc2626}.hero p{margin-top:10px;font-size:.75rem;color:rgba(255,255,255,.4);letter-spacing:.12em}.podcast-bar{background:#f0f0f0;border-bottom:1px solid var(--border);padding:16px 24px}.podcast-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}.podcast-label{font-size:.68rem;font-weight:800;letter-spacing:.12em;color:var(--black);white-space:nowrap}.podcast-player{flex:1;min-width:200px}.podcast-player audio{width:100%;height:36px}.podcast-note{font-size:.65rem;color:var(--light)}.podcast-dl{font-size:.68rem;font-weight:700;color:var(--black);text-decoration:none;border:1px solid var(--border);padding:4px 10px;border-radius:2px;white-space:nowrap}.podcast-dl:hover{background:var(--black);color:#fff}.container{max-width:1100px;margin:0 auto;padding:52px 24px}.news-section{margin-bottom:60px}.section-header{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--black)}.section-label{font-size:.68rem;font-weight:800;letter-spacing:.15em;color:var(--black)}.section-count{font-size:.65rem;color:var(--light)}.bar{width:28px;height:3px;border-radius:2px;flex-shrink:0}.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}.card{background:var(--bg);transition:background .15s}.card:hover{background:var(--bg2)}.card-link{display:flex;flex-direction:column;padding:18px 20px;height:100%;text-decoration:none;color:inherit}.card-tag{font-size:.63rem;font-weight:800;letter-spacing:.13em;margin-bottom:8px}.card-title{font-size:.86rem;font-weight:600;line-height:1.55;margin-bottom:auto;color:var(--black);flex:1}.card-link:hover .card-title{color:#dc2626}.card-meta{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--light)}.card-favicon{width:14px;height:14px;border-radius:2px;object-fit:contain;flex-shrink:0}.food-sub{margin-bottom:24px}.food-sub-label{font-size:.65rem;font-weight:800;letter-spacing:.12em;color:var(--mid);padding:6px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px}.patent-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}.patent-item{background:var(--bg);border:1px solid var(--border);padding:10px 14px;transition:background .15s}.patent-item:hover{background:var(--bg2)}.patent-link{font-size:.84rem;font-weight:500;color:var(--black);text-decoration:none;line-height:1.45;display:block}.patent-link:hover{color:#7c3aed}.patent-meta{font-size:.63rem;color:var(--light);margin-top:3px}.economy-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:60px}.archive-section{border-top:1px solid var(--border);padding-top:40px;margin-top:8px}.archive-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.archive-link{font-size:.7rem;font-weight:600;color:var(--charcoal);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:2px;transition:all .15s}.archive-link:hover{background:var(--black);color:#fff;border-color:var(--black)}footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center}footer p{font-size:.7rem;color:var(--light)}footer a{color:var(--charcoal);text-decoration:none}@media(max-width:768px){.economy-wrapper{grid-template-columns:1fr}.header-date{display:none}}@media(max-width:600px){.card-grid{grid-template-columns:1fr}.hero{padding:28px 16px}.container{padding:32px 16px}}"
+css="*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--black:#111;--charcoal:#333;--mid:#666;--light:#999;--border:#e5e5e5;--bg:#fff;--bg2:#f9f9f9}body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);color:var(--charcoal);line-height:1.7;font-size:15px}header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border)}.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;gap:24px}.logo{font-size:1.05rem;font-weight:800;letter-spacing:.12em;color:var(--black);text-decoration:none}.logo span{color:#dc2626}nav a{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--mid);text-decoration:none;padding:4px 12px}nav a:hover{color:var(--black)}.header-date{margin-left:auto;font-size:.68rem;color:var(--light)}.hero{background:var(--black);color:#fff;padding:44px 24px;text-align:center}.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:.15em}.hero h1 span{color:#dc2626}.hero p{margin-top:10px;font-size:.75rem;color:rgba(255,255,255,.4);letter-spacing:.12em}.container{max-width:1100px;margin:0 auto;padding:52px 24px}.news-section{margin-bottom:60px}.section-header{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--black)}.section-label{font-size:.68rem;font-weight:800;letter-spacing:.15em;color:var(--black)}.section-count{font-size:.65rem;color:var(--light)}.bar{width:28px;height:3px;border-radius:2px;flex-shrink:0}.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}.card{background:var(--bg);transition:background .15s}.card:hover{background:var(--bg2)}.card-link{display:flex;flex-direction:column;padding:18px 20px;height:100%;text-decoration:none;color:inherit}.card-tag{font-size:.63rem;font-weight:800;letter-spacing:.13em;margin-bottom:8px}.card-title{font-size:.86rem;font-weight:600;line-height:1.55;margin-bottom:auto;color:var(--black);flex:1}.card-link:hover .card-title{color:#dc2626}.card-meta{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--light)}.card-favicon{width:14px;height:14px;border-radius:2px;object-fit:contain;flex-shrink:0}.food-sub{margin-bottom:24px}.food-sub-label{font-size:.65rem;font-weight:800;letter-spacing:.12em;color:var(--mid);padding:6px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px}.patent-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}.patent-item{background:var(--bg);border:1px solid var(--border);padding:10px 14px;transition:background .15s}.patent-item:hover{background:var(--bg2)}.patent-link{font-size:.84rem;font-weight:500;color:var(--black);text-decoration:none;line-height:1.45;display:block}.patent-link:hover{color:#7c3aed}.patent-meta{font-size:.63rem;color:var(--light);margin-top:3px}.economy-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:60px}.archive-section{border-top:1px solid var(--border);padding-top:40px;margin-top:8px}.archive-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.archive-link{font-size:.7rem;font-weight:600;color:var(--charcoal);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:2px;transition:all .15s}.archive-link:hover{background:var(--black);color:#fff;border-color:var(--black)}footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center}footer p{font-size:.7rem;color:var(--light)}footer a{color:var(--charcoal);text-decoration:none}@media(max-width:768px){.economy-wrapper{grid-template-columns:1fr}.header-date{display:none}}@media(max-width:600px){.card-grid{grid-template-columns:1fr}.hero{padding:28px 16px}.container{padding:32px 16px}}"
 arc=mk_archive()
 total_food=len(food_major)+len(conf)+len(choco)
 total_pat=len(patents)
@@ -90,10 +49,6 @@ html=("<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'><meta name='vi
     "<nav><a href='#economy'>ECONOMY</a><a href='#ai'>AI</a><a href='#food'>FOOD</a><a href='#patents'>PATENT</a><a href='#archive'>ARCHIVE</a></nav>"
     f"<span class='header-date'>{date_str}</span></div></header>"
     "<div class='hero'><h1>UMAMI <span>REPORT</span></h1><p>FOOD &middot; AI &middot; ECONOMY &middot; DAILY DIGEST</p></div>"
-    "<div class='podcast-bar'><div class='podcast-inner'><span class='podcast-label'>PODCAST</span>"
-    f"<div class='podcast-player'><audio controls preload='auto' src='audio/{today}.mp3' style='width:100%;height:44px'></audio></div>"
-    f"<a href='audio/{today}.mp3' download class='podcast-dl'>⬇ DL</a>"
-    f"<span class='podcast-note'>Claude要約 x Nanami - {date_str}</span></div></div>"
     "<div class='container'>"
     "<div class='economy-wrapper' id='economy'>"
     f"<div class='economy-col'><div class='section-header'><div class='bar' style='background:#1a1a2e'></div><h2 class='section-label'>DOMESTIC - 国内主要経済</h2><span class='section-count'>{len(dom)} STORIES</span></div><div class='card-grid'>{mk_cards(dom,'DOMESTIC','#1a1a2e')}</div></div>"
@@ -112,7 +67,10 @@ html=("<!DOCTYPE html><html lang='ja'><head><meta charset='UTF-8'><meta name='vi
     "</body></html>")
 with open("/tmp/index.html","w",encoding="utf-8") as f: f.write(html)
 with open(f"/tmp/{today}.html","w",encoding="utf-8") as f: f.write(html)
-for path,fp,msg in [("index.html","/tmp/index.html",f"Daily digest {today}"),(f"{today}.html",f"/tmp/{today}.html",f"Archive {today}"),(f"audio/{today}.mp3",mp3,f"Podcast {today}")]:
+uploads=[("index.html","/tmp/index.html",f"Daily digest {today}"),(f"{today}.html",f"/tmp/{today}.html",f"Archive {today}")]
+if os.path.exists("/tmp/debug_run.txt"):
+    uploads.append(("debug.txt","/tmp/debug_run.txt",f"Debug {today}"))
+for path,fp,msg in uploads:
     with open(fp,"rb") as f: c=f.read()
     print(f"{path}:", ghput(path,c,msg))
 print("Done!")
