@@ -9,7 +9,7 @@ ssl_ctx.verify_mode = ssl.CERT_NONE
 
 JST = timezone(timedelta(hours=9))
 now = datetime.now(timezone.utc).astimezone(JST)
-cutoff = now - timedelta(days=30)
+cutoff = now - timedelta(days=90)
 days_ja = "月火水木金土日"
 
 def fetch_excerpt(url, chars=500):
