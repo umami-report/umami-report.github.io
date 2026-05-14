@@ -35,7 +35,7 @@ def parse_rss(fp, mx=5):
         if not ch: return items
         for it in ch.findall("item"):
             t=it.find("title"); l=it.find("link"); p=it.find("pubDate"); s=it.find("source")
-            if not t: continue
+            if t is None: continue
             pub=""
             if p is not None and p.text:
                 try:
@@ -124,7 +124,7 @@ def parse_patents(fp, mx=3):
         if not ch: return patents
         for it in ch.findall("item"):
             t=it.find("title"); l=it.find("link"); p=it.find("pubDate")
-            if not t: continue
+            if t is None: continue
             pub=""
             if p is not None and p.text:
                 try:
