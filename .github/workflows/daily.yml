@@ -1,0 +1,30 @@
+name: Daily News Digest
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          pip install playwright -q
+          python -m playwright install chromium --with-deps -q || true
+
+      - name: Fetch RSS and generate articles.json
+        run: bash scripts/run.sh
+
+      - name: Publish to GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/publish.py
