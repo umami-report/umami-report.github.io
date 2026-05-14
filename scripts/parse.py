@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET, json, re, urllib.request, ssl
+import xml.etree.ElementTree as ET, json, re, urllib.request, ssl, csv, io
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 
@@ -140,6 +140,51 @@ def parse_patents(fp, mx=3):
     except Exception as e: print("patent err",e)
     return patents
 
+# ── Market data ──────────────────────────────────────────────────
+def fetch_yahoo_prices(ticker, range_="3mo"):
+    """Yahoo Finance chart API → {prices, price, change_pct, currency}"""
+    try:
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range={range_}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=15, context=ssl_ctx) as r:
+            data = json.loads(r.read())
+        res = data["chart"]["result"][0]
+        closes = [c for c in (res["indicators"]["quote"][0].get("close") or []) if c is not None]
+        meta = res["meta"]
+        price = meta.get("regularMarketPrice") or (closes[-1] if closes else 0)
+        prev  = meta.get("chartPreviousClose") or (closes[-2] if len(closes) > 1 else price)
+        change_pct = ((price - prev) / prev * 100) if prev else 0
+        return {"prices": closes[-90:], "price": price, "change_pct": change_pct,
+                "currency": meta.get("currency", "")}
+    except Exception as e:
+        print(f"Yahoo price error {ticker}: {e}"); return None
+
+def fetch_stooq_prices(symbol):
+    """Stooq CSV (London Cocoa @cc.b GBP/tonne など) → same format"""
+    try:
+        url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=15, context=ssl_ctx) as r:
+            text = r.read().decode("utf-8")
+        reader = csv.DictReader(io.StringIO(text))
+        closes = [float(row["Close"]) for row in reader if row.get("Close") not in ("", None, "null")]
+        closes = closes[-90:]
+        if not closes: return None
+        price = closes[-1]; prev = closes[-2] if len(closes) > 1 else price
+        change_pct = ((price - prev) / prev * 100) if prev else 0
+        return {"prices": closes, "price": price, "change_pct": change_pct, "currency": "GBP"}
+    except Exception as e:
+        print(f"Stooq price error {symbol}: {e}"); return None
+
+print("Fetching market data...")
+markets = {
+    "nikkei": fetch_yahoo_prices("^N225"),      # 日経平均 (JPY)
+    "cocoa":  fetch_stooq_prices("@cc.b"),       # ロンドンカカオ (GBP/tonne)
+    "orcan":  fetch_yahoo_prices("ACWI"),        # MSCI All Country World ETF (USD)
+}
+for k, v in markets.items():
+    print(f"  {k}: {v['price'] if v else 'N/A'}")
+
 # Debug: raw file sizes and item counts before date filter
 def raw_count(fp):
     try:
@@ -190,7 +235,7 @@ for cat in [dom, wld, ai, food_major]:
 
 out = {"domestic":dom,"world":wld,"ai":ai,
        "food_major":food_major,"confectionery":conf,"chocolate":choco,
-       "patents":patents,
+       "patents":patents,"markets":markets,
        "date":now.strftime("%Y-%m-%d"),
        "date_str":now.strftime("%Y年%m月%d日")+"("+days_ja[now.weekday()]+")",
        "time_str":now.strftime("%Y/%m/%d %H:%M")}
