@@ -11,7 +11,7 @@ fetch "${BASE}%E6%97%A5%E6%9C%AC+%E7%B5%8C%E6%B8%88+%E3%83%8B%E3%83%A5%E3%83%BC%
 fetch "${BASE}%E4%B8%96%E7%95%8C+%E7%B5%8C%E6%B8%88+%E5%9B%BD%E9%9A%9B+when%3A7d" > /tmp/news_world.xml || true
 fetch "${BASE}AI+%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD+%E3%83%86%E3%82%AF%E3%83%8E%E3%83%AD%E3%82%B8%E3%83%BC+when%3A7d" > /tmp/news_ai.xml || true
 fetch "${BASE}%E9%A3%9F%E5%93%81%E6%A5%AD%E7%95%8C+%E5%B8%82%E5%A0%B4+%E5%8B%95%E5%90%91+%E4%BC%81%E6%A5%AD+when%3A7d" > /tmp/news_food_major.xml || true
-fetch "${BASE}%E8%8F%93%E5%AD%90+%E6%96%B0%E5%95%86%E5%93%81+%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84+%E6%96%B0%E7%99%BA%E5%A3%B2+%E6%96%B0%E5%BA%97+when%3A7d" > /tmp/news_confectionery.xml || true
+fetch "${BASE}%E8%8F%93%E5%AD%90+%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84+when%3A7d" > /tmp/news_confectionery.xml || true
 fetch "${BASE}%E3%83%81%E3%83%A7%E3%82%B3%E3%83%AC%E3%83%BC%E3%83%88+%E6%96%B0%E5%95%86%E5%93%81+%E6%96%B0%E7%99%BA%E5%A3%B2+%E3%83%88%E3%83%AC%E3%83%B3%E3%83%89+when%3A7d" > /tmp/news_chocolate.xml || true
 
 # Fallback empty XML for patents
