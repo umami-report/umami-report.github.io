@@ -9,7 +9,7 @@ ssl_ctx.verify_mode = ssl.CERT_NONE
 
 JST = timezone(timedelta(hours=9))
 now = datetime.now(timezone.utc).astimezone(JST)
-cutoff = now - timedelta(days=90)
+cutoff = now - timedelta(days=14)
 days_ja = "月火水木金土日"
 
 def fetch_excerpt(url, chars=500):
@@ -36,12 +36,13 @@ def parse_rss(fp, mx=5):
         for it in ch.findall("item"):
             t=it.find("title"); l=it.find("link"); p=it.find("pubDate"); s=it.find("source")
             if t is None: continue
-            pub=""
+            pub=""; dt_sort=datetime.min.replace(tzinfo=timezone.utc)
             if p is not None and p.text:
                 try:
                     dt=parsedate_to_datetime(p.text)
                     if dt.tzinfo is None: dt=dt.replace(tzinfo=timezone.utc)
                     if dt.astimezone(JST) < cutoff: continue
+                    dt_sort=dt
                     pub=dt.astimezone(JST).strftime("%m/%d %H:%M")
                 except: pass
             raw=t.text or ""; src=s.text if s is not None else ""
@@ -52,8 +53,11 @@ def parse_rss(fp, mx=5):
             clean=re.sub(r"[]【】《》[〔〕]","",clean).strip()
             fav="https://www.google.com/s2/favicons?domain="+surl+"&sz=64" if surl else ""
             items.append({"title":clean,"raw":raw,"source":src,"source_url":surl,
-                          "link":link,"date":pub,"favicon":fav,"excerpt":""})
-            if len(items)>=mx: break
+                          "link":link,"date":pub,"favicon":fav,"excerpt":"","_dt":dt_sort})
+        # 日付降順でソートして上位 mx 件を返す
+        items.sort(key=lambda x: x["_dt"], reverse=True)
+        items = items[:mx]
+        for a in items: del a["_dt"]
     except Exception as e: print("err",fp,e)
     return items
 
