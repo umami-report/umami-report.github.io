@@ -177,9 +177,16 @@ def fetch_stooq_prices(symbol):
         print(f"Stooq price error {symbol}: {e}"); return None
 
 print("Fetching market data...")
+# London Cocoa GBP (stooq) → fallback NY Cocoa USD (Yahoo CC=F)
+cocoa = fetch_stooq_prices("@cc.b")
+if not cocoa:
+    print("  stooq @cc.b failed, trying Yahoo CC=F...")
+    cocoa = fetch_yahoo_prices("CC=F")  # NY Cocoa USD/MT
+    if cocoa:
+        cocoa["_label"] = "カカオ (NY)"   # override label in publish
 markets = {
     "nikkei": fetch_yahoo_prices("^N225"),      # 日経平均 (JPY)
-    "cocoa":  fetch_stooq_prices("@cc.b"),       # ロンドンカカオ (GBP/tonne)
+    "cocoa":  cocoa,                             # ロンドンカカオ GBP or NY USD
     "orcan":  fetch_yahoo_prices("ACWI"),        # MSCI All Country World ETF (USD)
 }
 for k, v in markets.items():
