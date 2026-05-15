@@ -55,12 +55,13 @@ def fmt_price(price,currency):
     if currency=="USD": return f"${price:.2f}"
     return f"{price:,.2f}"
 def mk_market_strip(mkt):
-    defs=[("nikkei","日経平均","JPY","#1a1a2e"),("cocoa","カカオ (London)","GBP","#92400e"),("orcan","MSCI ACWI","USD","#2563eb")]
+    defs=[("nikkei","日経平均","JPY","#1a1a2e"),("cocoa","カカオ (London GBP)","GBP","#92400e"),("orcan","MSCI ACWI","USD","#2563eb")]
     cards=[]
     for key,label,def_cur,accent in defs:
         m=mkt.get(key) if mkt else None
         if not m: continue
         prices=m.get("prices",[]);price=m.get("price",0);chg=m.get("change_pct",0);cur=m.get("currency",def_cur)
+        if m.get("_label"): label=m["_label"]  # override (e.g. NY cocoa fallback)
         sign="+" if chg>=0 else ""; cc="#16a34a" if chg>=0 else "#dc2626"
         arrow="▲" if chg>=0 else "▼"
         cards.append(
