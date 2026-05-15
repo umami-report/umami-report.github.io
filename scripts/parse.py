@@ -154,8 +154,9 @@ def fetch_yahoo_prices(ticker, range_="3mo"):
         price = meta.get("regularMarketPrice") or (closes[-1] if closes else 0)
         prev  = meta.get("chartPreviousClose") or (closes[-2] if len(closes) > 1 else price)
         change_pct = ((price - prev) / prev * 100) if prev else 0
+        fetched_at = datetime.now(JST).strftime("%m/%d %H:%M")
         return {"prices": closes[-90:], "price": price, "change_pct": change_pct,
-                "currency": meta.get("currency", "")}
+                "currency": meta.get("currency", ""), "fetched_at": fetched_at}
     except Exception as e:
         print(f"Yahoo price error {ticker}: {e}"); return None
 
@@ -172,7 +173,8 @@ def fetch_stooq_prices(symbol):
         if not closes: return None
         price = closes[-1]; prev = closes[-2] if len(closes) > 1 else price
         change_pct = ((price - prev) / prev * 100) if prev else 0
-        return {"prices": closes, "price": price, "change_pct": change_pct, "currency": "GBP"}
+        fetched_at = datetime.now(JST).strftime("%m/%d %H:%M")
+        return {"prices": closes, "price": price, "change_pct": change_pct, "currency": "GBP", "fetched_at": fetched_at}
     except Exception as e:
         print(f"Stooq price error {symbol}: {e}"); return None
 
@@ -188,6 +190,7 @@ markets = {
     "nikkei": fetch_yahoo_prices("^N225"),      # 日経平均 (JPY)
     "cocoa":  cocoa,                             # ロンドンカカオ GBP or NY USD
     "orcan":  fetch_yahoo_prices("ACWI"),        # MSCI All Country World ETF (USD)
+    "silver": fetch_yahoo_prices("SI=F"),        # Silver Futures USD/oz
 }
 for k, v in markets.items():
     print(f"  {k}: {v['price'] if v else 'N/A'}")
