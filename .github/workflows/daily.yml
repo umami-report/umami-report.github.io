@@ -1,7 +1,7 @@
 name: Daily News Digest
 on:
   schedule:
-    - cron: '0 20 * * *'
+    - cron: '0 22 * * *'
   workflow_dispatch:
 
 jobs:
@@ -28,3 +28,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 scripts/publish.py
+
+      - name: Send daily email digest
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          TO_EMAIL: takahashidan0530@gmail.com
+          FROM_EMAIL: takahashidan0530@gmail.com
+        run: python3 scripts/send_email.py
+        continue-on-error: true
