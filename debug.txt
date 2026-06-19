@@ -1,19 +1,19 @@
-=== RSS Fetch Debug Thu Jun 18 22:10:24 UTC 2026 ===
-news_domestic: size=110395
+=== RSS Fetch Debug Fri Jun 19 21:11:08 UTC 2026 ===
+news_domestic: size=108163
   first300: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><generator>NFE/5.0</generator><title>"日本 経済 ニュース when:7d" - Google ニュース</title><link>https://news.google.com/search?hl=ja&amp;gl=JP&amp;ceid=JP:ja&am
-news_world: size=55336
+news_world: size=55322
   first300: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><generator>NFE/5.0</generator><title>"世界 経済 国際 when:7d" - Google ニュース</title><link>https://news.google.com/search?hl=ja&amp;gl=JP&amp;ceid=JP:ja&amp;q=%E
-news_ai: size=49359
+news_ai: size=63443
   first300: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><generator>NFE/5.0</generator><title>"AI 人工知能 テクノロジー when:7d" - Google ニュース</title><link>https://news.google.com/search?hl=ja&amp;gl=JP&amp;ceid=
-news_food_major: size=49639
+news_food_major: size=49300
   first300: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><generator>NFE/5.0</generator><title>"食品業界 市場 動向 企業 when:7d" - Google ニュース</title><link>https://news.google.com/search?hl=ja&amp;gl=JP&amp;ceid=J
-news_confectionery: size=129220
+news_confectionery: size=125683
   first300: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><generator>NFE/5.0</generator><title>"菓子 スイーツ when:7d" - Google ニュース</title><link>https://news.google.com/search?hl=ja&amp;gl=JP&amp;ceid=JP:ja&amp;q=%E8
 news_chocolate: size=11660
   first300: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"><channel><generator>NFE/5.0</generator><title>"チョコレート 新商品 新発売 トレンド when:7d" - Google ニュース</title><link>https://news.google.com/search?hl=ja&am
   news_domestic: 100
-  news_world: 45
-  news_ai: 41
+  news_world: 44
+  news_ai: 52
   news_food_major: 44
   news_confectionery: 100
   news_chocolate: 9
