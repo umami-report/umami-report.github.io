@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET, json, re, urllib.request, ssl, csv, io
+import xml.etree.ElementTree as ET, json, re, urllib.request, ssl, csv, io, os, unicodedata
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 
@@ -7,10 +7,29 @@ ssl_ctx = ssl.create_default_context()
 ssl_ctx.check_hostname = False
 ssl_ctx.verify_mode = ssl.CERT_NONE
 
+TMP = os.environ.get("NEWS_TMP", "/tmp")
 JST = timezone(timedelta(hours=9))
 now = datetime.now(timezone.utc).astimezone(JST)
 cutoff = now - timedelta(days=14)
 days_ja = "月火水木金土日"
+
+# 市場調査レポートの宣伝・株価データページ・クチコミページなど、全カテゴリ共通で除外するノイズ
+SPAM = re.compile(r"市場規模|分析レポート|調査レポート|市場調査|世界市場|グローバル市場|レポートを発表|リサーチ会社"
+                  r"|株価・株式情報|クチコミ\d*件|経済指標|写真・画像")
+
+def norm_title(t):
+    """タイトルの表記ゆれ（全角/半角・空白・記号）を吸収して重複判定用キーを作る"""
+    t = unicodedata.normalize("NFKC", t)
+    return re.sub(r"[\W_]", "", t).lower()
+
+def bigrams(s):
+    return {s[i:i+2] for i in range(len(s)-1)}
+
+def similar(a, b, threshold=0.45):
+    """タイトルの文字バイグラム重複率で同一トピックの言い換え記事を検出する"""
+    A, B = bigrams(a), bigrams(b)
+    if not A or not B: return a == b
+    return len(A & B) / min(len(A), len(B)) > threshold
 
 def fetch_excerpt(url, chars=500):
     try:
@@ -27,8 +46,11 @@ def fetch_excerpt(url, chars=500):
     except:
         return ""
 
-def parse_rss(fp, mx=5):
+def parse_rss(fp, mx=5, require=None, exclude=None):
+    """RSSを読み、ゴミタイトル除去・カテゴリフィルタ・重複除去をかけて日付降順の上位 mx 件を返す。
+    require: タイトルが必ずマッチすべき正規表現 / exclude: マッチしたら除外する正規表現"""
     items = []
+    seen = set()
     try:
         root = ET.parse(fp).getroot()
         ch = root.find("channel")
@@ -51,98 +73,35 @@ def parse_rss(fp, mx=5):
             clean=raw
             if src and clean.endswith(" - "+src): clean=clean[:-len(" - "+src)].strip()
             clean=re.sub(r"[]【】《》[〔〕]","",clean).strip()
+            # 末尾の「（配信元名）」を除去（Yahoo!ニュース転載などで同一記事が別タイトルになるのを防ぐ）
+            clean=re.sub(r"[\s　]*[（(][^（()）]{2,25}[)）]\s*$","",clean).strip()
+            # ゴミタイトル除去: メールアドレス・極端に短いもの・「〜た。」等の文（機械翻訳系メディアに多い）
+            if "@" in clean: continue
+            if len(clean) < 8: continue
+            if clean.endswith("。"): continue
+            if SPAM.search(clean): continue
+            if require and not re.search(require, clean): continue
+            if exclude and re.search(exclude, clean): continue
+            key = norm_title(clean)
+            if key in seen: continue
+            seen.add(key)
             fav="https://www.google.com/s2/favicons?domain="+surl+"&sz=64" if surl else ""
             items.append({"title":clean,"raw":raw,"source":src,"source_url":surl,
-                          "link":link,"date":pub,"favicon":fav,"excerpt":"","_dt":dt_sort})
-        # 日付降順でソートして上位 mx 件を返す
+                          "link":link,"date":pub,"favicon":fav,"excerpt":"","_dt":dt_sort,"_key":key})
+        # 日付降順に並べ、言い換え重複と同一ソース偏りを避けながら上位 mx 件を選ぶ
         items.sort(key=lambda x: x["_dt"], reverse=True)
-        items = items[:mx]
-        for a in items: del a["_dt"]
+        picked=[]; src_count={}
+        for a in items:
+            if src_count.get(a["source"],0) >= 2: continue
+            if any(similar(a["_key"], p["_key"]) for p in picked): continue
+            picked.append(a)
+            src_count[a["source"]] = src_count.get(a["source"],0)+1
+            if len(picked) >= mx: break
+        items = picked
+        for a in items:
+            del a["_dt"]; del a["_key"]
     except Exception as e: print("err",fp,e)
     return items
-
-def search_jplatpat(keyword, mx=5):
-    """Search J-PlatPat for recent confectionery patents using Playwright."""
-    patents = []
-    try:
-        from playwright.sync_api import sync_playwright
-        import threading
-
-        captured = []
-        def run():
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
-                ctx = browser.new_context(user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36")
-                page = ctx.new_page()
-
-                def on_response(resp):
-                    if "wst0401" in resp.url and resp.status == 200:
-                        try:
-                            data = resp.json()
-                            if data.get("RSLT_INFO", {}).get("RSLT_CD") == 0:
-                                captured.extend(data.get("SEARCH_RSLT_LIST") or [])
-                        except: pass
-
-                page.on("response", on_response)
-                page.goto("https://www.j-platpat.inpit.go.jp/p0100", wait_until="networkidle", timeout=30000)
-                page.wait_for_timeout(2000)
-
-                # Type in the simple search box and submit
-                try:
-                    page.fill("input[type='text']", keyword)
-                    page.wait_for_timeout(500)
-                    page.keyboard.press("Enter")
-                    page.wait_for_timeout(5000)
-                except: pass
-
-                browser.close()
-
-        t = threading.Thread(target=run)
-        t.start(); t.join(timeout=45)
-
-        print(f"J-PlatPat results for '{keyword}': {len(captured)}")
-        cutoff_str = cutoff.strftime("%Y%m%d")
-        for item in captured[:mx]:
-            pub = item.get("PD","") or item.get("publicationDate","") or item.get("AD","") or ""
-            pub_display = f"{pub[4:6]}/{pub[6:]}" if len(pub)==8 else pub
-            if pub and pub < cutoff_str: continue
-            title = item.get("TITL","") or item.get("inventionTitle","") or item.get("TI","") or str(item)[:60]
-            app_no = item.get("APNO","") or item.get("applicationNumber","") or ""
-            pub_no = item.get("PUBN","") or item.get("publicationNumber","") or ""
-            if pub_no:
-                link = f"https://www.j-platpat.inpit.go.jp/c1800/PU/{pub_no.replace(' ','-')}/ja"
-            elif app_no:
-                link = f"https://www.j-platpat.inpit.go.jp/c1800/PU/{app_no}/ja"
-            else:
-                link = "https://www.j-platpat.inpit.go.jp/p0100"
-            patents.append({"title":title,"link":link,"date":pub_display,"source":"J-PlatPat","favicon":"","excerpt":""})
-    except Exception as e:
-        print(f"J-PlatPat search error: {e}")
-    return patents
-
-def parse_patents(fp, mx=3):
-    patents = []
-    try:
-        root = ET.parse(fp).getroot()
-        ch = root.find("channel")
-        if not ch: return patents
-        for it in ch.findall("item"):
-            t=it.find("title"); l=it.find("link"); p=it.find("pubDate")
-            if t is None: continue
-            pub=""
-            if p is not None and p.text:
-                try:
-                    dt=parsedate_to_datetime(p.text)
-                    if dt.tzinfo is None: dt=dt.replace(tzinfo=timezone.utc)
-                    if dt.astimezone(JST) < cutoff: continue
-                    pub=dt.astimezone(JST).strftime("%m/%d")
-                except: pass
-            title=t.text or ""; link=l.text if l is not None else "#"
-            patents.append({"title":title,"link":link,"date":pub,"source":"Google Patents",
-                            "favicon":"","excerpt":""})
-            if len(patents)>=mx: break
-    except Exception as e: print("patent err",e)
-    return patents
 
 # ── Market data ──────────────────────────────────────────────────
 def fetch_yahoo_prices(ticker, range_="3mo"):
@@ -202,7 +161,6 @@ for k, v in markets.items():
 # Debug: raw file sizes and item counts before date filter
 def raw_count(fp):
     try:
-        import os
         sz = os.path.getsize(fp)
         root = ET.parse(fp).getroot(); ch = root.find("channel")
         cnt = len(ch.findall("item")) if ch else 0
@@ -210,34 +168,39 @@ def raw_count(fp):
     except Exception as e:
         return {"size": 0, "items": 0, "err": str(e)}
 
-debug_feeds = {k: raw_count(v) for k,v in {
-    "domestic": "/tmp/news_domestic.xml",
-    "world": "/tmp/news_world.xml",
-    "ai": "/tmp/news_ai.xml",
-    "food_major": "/tmp/news_food_major.xml",
-    "conf": "/tmp/news_confectionery.xml",
-    "choco": "/tmp/news_chocolate.xml",
+debug_feeds = {k: raw_count(f"{TMP}/news_{v}.xml") for k,v in {
+    "domestic": "domestic",
+    "world": "world",
+    "ai": "ai",
+    "food_major": "food_major",
+    "conf": "confectionery",
+    "choco": "chocolate",
 }.items()}
 print("DEBUG feed raw counts:", debug_feeds)
 
 # Parse all feeds
-dom = parse_rss("/tmp/news_domestic.xml")
-wld = parse_rss("/tmp/news_world.xml")
-ai  = parse_rss("/tmp/news_ai.xml")
-food_major = parse_rss("/tmp/news_food_major.xml")
-conf  = parse_rss("/tmp/news_confectionery.xml", mx=20)
-choco = parse_rss("/tmp/news_chocolate.xml", mx=20)
-# Search J-PlatPat for confectionery patents (菓子 broadly: チョコ/焼き菓子/和菓子 etc.)
-patents = search_jplatpat("菓子 チョコレート", mx=5)
-if not patents:
-    print("J-PlatPat returned no results, trying parse_patents fallback...")
-    patents = parse_patents("/tmp/patents.xml")
+# 国内経済: 海外市場・海外企業単独の話題を除外
+dom = parse_rss(f"{TMP}/news_domestic.xml",
+                exclude=r"米企業|米国株|米株|NYダウ|ナスダック|ウォール街|韓国|中国経済|中国株|欧州経済|欧州株|FRB|ECB|台湾|インド")
+wld = parse_rss(f"{TMP}/news_world.xml")
+ai  = parse_rss(f"{TMP}/news_ai.xml")
+# 食品業界: 業界・企業動向に限定（個別スイーツ紹介・飲食店プロモはCONFECTIONERYや対象外へ）
+food_major = parse_rss(f"{TMP}/news_food_major.xml",
+                       exclude=r"スイーツ|フィナンシェ|パフェ|ケーキ|クレープ|かき氷|食べ放題|飲み放題|クーポン|福袋")
+# チョコレート: タイトルにチョコ関連語を必須にする（カカオトーク=韓国アプリは除外）
+choco = parse_rss(f"{TMP}/news_chocolate.xml", mx=30,
+                  require=r"チョコ|ショコラ|カカオ|ガトー",
+                  exclude=r"カカオトーク")
+# 菓子・スイーツ: スイーツ関連語を必須、チョコ系はCHOCOLATE欄に譲る
+conf  = parse_rss(f"{TMP}/news_confectionery.xml", mx=30,
+                  require=r"菓子|スイーツ|ケーキ|クッキー|ビスケット|アイス|デザート|パフェ|プリン|ドーナツ|タルト|マカロン|大福|饅頭|羊羹|パンケーキ",
+                  exclude=r"チョコ|ショコラ")
 
-# De-duplicate food sub-categories
-used = set(a["title"] for a in food_major)
-conf  = [a for a in conf  if a["title"] not in used][:5]
-used.update(a["title"] for a in conf)
-choco = [a for a in choco if a["title"] not in used][:5]
+# De-duplicate across food sub-categories (表記ゆれを吸収して比較)
+used = set(norm_title(a["title"]) for a in food_major)
+choco = [a for a in choco if norm_title(a["title"]) not in used][:5]
+used.update(norm_title(a["title"]) for a in choco)
+conf  = [a for a in conf  if norm_title(a["title"]) not in used][:5]
 
 # Fetch excerpts only for top 2 of main categories (token efficiency)
 print("Fetching excerpts (main categories only)...")
@@ -249,11 +212,11 @@ for cat in [dom, wld, ai, food_major]:
 
 out = {"domestic":dom,"world":wld,"ai":ai,
        "food_major":food_major,"confectionery":conf,"chocolate":choco,
-       "patents":patents,"markets":markets,
+       "markets":markets,
        "date":now.strftime("%Y-%m-%d"),
        "date_str":now.strftime("%Y年%m月%d日")+"("+days_ja[now.weekday()]+")",
        "time_str":now.strftime("%Y/%m/%d %H:%M")}
-with open("/tmp/articles.json","w",encoding="utf-8") as f:
+with open(f"{TMP}/articles.json","w",encoding="utf-8") as f:
     json.dump(out,f,ensure_ascii=False,indent=2)
 
 print("\n=== Summary ===")
@@ -261,5 +224,4 @@ for lbl,items in [("国内",dom),("世界",wld),("AI",ai),
                   ("食品",food_major),("菓子",conf),("チョコ",choco)]:
     ex = sum(1 for a in items if a["excerpt"])
     print(f"  {lbl}: {len(items)}件 (excerpt:{ex})")
-print(f"  特許: {len(patents)}件")
 print(f"  合計: {len(dom)+len(wld)+len(ai)+len(food_major)+len(conf)+len(choco)}件")
