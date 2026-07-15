@@ -1,13 +1,13 @@
-=== RSS Fetch Debug Tue Jul 14 21:00:59 UTC 2026 ===
-news_domestic: size=109936
-news_world: size=119113
-news_ai: size=74881
-news_food_major: size=89645
-news_confectionery: size=148393
-news_chocolate: size=123839
+=== RSS Fetch Debug Wed Jul 15 21:01:15 UTC 2026 ===
+news_domestic: size=110441
+news_world: size=117806
+news_ai: size=76764
+news_food_major: size=94244
+news_confectionery: size=146691
+news_chocolate: size=123580
   news_domestic: 100
   news_world: 100
-  news_ai: 64
-  news_food_major: 58
+  news_ai: 65
+  news_food_major: 62
   news_confectionery: 100
   news_chocolate: 100
